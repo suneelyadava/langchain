@@ -6,7 +6,9 @@ from langchain.utils import check_package_version
 try:
     check_package_version("lark", gte_version="1.1.5")
     from lark import Lark, Transformer, v_args
+    _LARK_AVAILABLE = True
 except ImportError:
+    _LARK_AVAILABLE = False
 
     def v_args(*args: Any, **kwargs: Any) -> Any:  # type: ignore
         return lambda _: None
@@ -145,8 +147,8 @@ def get_parser(
     Returns:
         Lark parser for the query language.
     """
-    # QueryTransformer is None when Lark cannot be imported.
-    if QueryTransformer is None:
+    # Check if Lark is available.
+    if not _LARK_AVAILABLE:
         raise ImportError(
             "Cannot import lark, please install it with 'pip install lark'."
         )
