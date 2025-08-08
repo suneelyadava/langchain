@@ -1,5 +1,7 @@
 """Test LLM-generated structured query parsing."""
+import sys
 from typing import Any, cast
+from unittest.mock import patch
 
 import lark
 import pytest
@@ -122,3 +124,15 @@ def test_parser_unpack_single_arg_operation(op: str, arg: str) -> None:
     expected = DEFAULT_PARSER.parse(arg)
     actual = DEFAULT_PARSER.parse(f"{op}({arg})")
     assert expected == actual
+
+
+def test_lark_import_error_handling() -> None:
+    """Test that get_parser raises ImportError when lark is not available."""
+    # Mock the _LARK_AVAILABLE flag to simulate lark not being available
+    with patch('langchain.chains.query_constructor.parser._LARK_AVAILABLE', False):
+        with pytest.raises(ImportError) as exc_info:
+            get_parser()
+        
+        # Verify the error message is correct
+        assert "Cannot import lark" in str(exc_info.value)
+        assert "pip install lark" in str(exc_info.value)
